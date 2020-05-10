@@ -1,5 +1,6 @@
 package com.xixin.listen.rain;
 
+//this is a good application!
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
