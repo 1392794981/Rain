@@ -729,13 +729,13 @@ public class MainActivity extends FragmentActivity {
 
         initCustomSetting();
 
-        String dir = "/storage/";
+        String dir = "/storage/emulated/0/";
         if (strFilePath != null && strFilePath.lastIndexOf("/") > 0)
             dir = strFilePath.substring(0, strFilePath.lastIndexOf("/"));
 
         File dialogDir = new File(dir);
         if (!dialogDir.exists())
-            dialogDir = new File("/storage/");
+            dialogDir = new File("/storage/emulated/0/");
         Log.v("dir", dir);
         //txtTemp.setText(strFilePath+"\n"+ dir);
 
@@ -1075,6 +1075,28 @@ public class MainActivity extends FragmentActivity {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         //txtTemp.setText(event.toString());
+        //txtText.setText(event.toString());
+
+        if(event.getAction()==KeyEvent.ACTION_DOWN){
+            switch (event.getKeyCode()){
+                case KeyEvent.KEYCODE_BACK:
+                    toAdvancePlayOrPause();
+                    break;
+            }
+        }
+
+        if(event.getAction()==KeyEvent.ACTION_UP){
+            switch (event.getKeyCode()){
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    toBack(3000);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    toBack(6000);
+                    break;
+            }
+        }
+        return true;
+        /*
         //本函数处理onkeydown无法处理的几个键
         if (event.getAction() == KeyEvent.ACTION_MULTIPLE) {
             isAction_Multiple = true;
@@ -1097,7 +1119,7 @@ public class MainActivity extends FragmentActivity {
             }
         }
         return super.dispatchKeyEvent(event);
-
+        */
     }
 
     @Override
