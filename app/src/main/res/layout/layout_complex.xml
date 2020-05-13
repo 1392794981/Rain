@@ -12,8 +12,8 @@
         android:id="@+id/textView2"
         android:layout_width="0dp"
         android:layout_height="120dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:fadeScrollbars="false"
         android:scrollbarAlwaysDrawVerticalTrack="true"
         android:stateListAnimator="@null"
@@ -88,9 +88,9 @@
         android:id="@+id/txtFilePath"
         android:layout_width="0dp"
         android:layout_height="19dp"
-        android:layout_marginEnd="1dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
+        android:layout_marginEnd="1dp"
         android:text="文件路径："
         android:textColor="#888"
         android:textSize="12sp"
@@ -102,8 +102,8 @@
         android:id="@+id/btnBack"
         android:layout_width="0dp"
         android:layout_height="70dp"
-        android:layout_marginEnd="2dp"
         android:layout_marginStart="1dp"
+        android:layout_marginEnd="2dp"
         android:background="@drawable/buttonstyle"
         android:text="回退"
         android:textColor="#888"
@@ -140,8 +140,8 @@
         android:id="@+id/btnNext"
         android:layout_width="0dp"
         android:layout_height="70dp"
-        android:layout_marginBottom="1dp"
         android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp"
         android:background="@drawable/buttonstyle"
         android:text="下一句"
         android:textColor="#888"
@@ -156,9 +156,9 @@
         android:id="@+id/btnForward"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp"
         android:layout_marginStart="1dp"
         android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp"
         android:background="@drawable/buttonstyle"
         android:text="前进"
         android:textColor="#888"
@@ -212,12 +212,13 @@
         app:layout_constraintStart_toEndOf="@+id/btnShowText"
         app:layout_constraintTop_toBottomOf="@+id/btnPre" />
 
+
     <Button
         android:id="@+id/btnShowText"
         android:layout_width="80dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="1dp"
         android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp"
         android:background="@drawable/buttonstyle"
         android:text="原文"
         android:textColor="#888"
@@ -295,10 +296,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/buttonstyle"
-        android:textColor="#888"
         android:text="播放停止"
-        app:layout_constraintEnd_toStartOf="@+id/btnRecordPlay"
+        android:textColor="#888"
         app:layout_constraintBottom_toBottomOf="@+id/btnSpeedDown"
+        app:layout_constraintEnd_toStartOf="@+id/btnRecordPlay"
         app:layout_constraintTop_toTopOf="@+id/btnSpeedDown" />
 
     <Button
@@ -306,23 +307,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/buttonstyle"
-        android:textColor="#888"
         android:text="录音播放"
-        app:layout_constraintEnd_toStartOf="@+id/btnRecord"
+        android:textColor="#888"
         app:layout_constraintBottom_toBottomOf="@+id/btnSpeedDown"
+        app:layout_constraintEnd_toStartOf="@+id/btnRecord"
         app:layout_constraintTop_toTopOf="@+id/btnSpeedDown" />
 
     <Button
         android:id="@+id/btnRecord"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/buttonstyle"
-        android:textColor="#888"
         android:layout_marginRight="0dp"
+        android:background="@drawable/buttonstyle"
         android:text="开始录音"
+        android:textColor="#888"
+        app:layout_constraintBottom_toBottomOf="@+id/btnSpeedDown"
         app:layout_constraintEnd_toEndOf="@+id/btnNext"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/btnSpeedDown"
         app:layout_constraintTop_toTopOf="@+id/btnSpeedDown" />
 
     <Button

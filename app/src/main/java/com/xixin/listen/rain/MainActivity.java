@@ -19,11 +19,11 @@ import android.media.AudioRecord;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
-import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -48,6 +48,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -120,7 +121,7 @@ public class MainActivity extends FragmentActivity {
     Button btnForwardLesson, btnNextLesson;
 
     Button play_pause_button, backword_button, farward_button, repeat_button, next_button, pre_button, farnext_button, farpre_button;
-    Button lrc_button, clear_button,lrcShow_button;
+    Button lrc_button, clear_button, lrcShow_button;
     TextView lrc_text;
 
     ImageView imageViewProgress;
@@ -530,7 +531,7 @@ public class MainActivity extends FragmentActivity {
                         theActivity.lrc_text.setText("No");
                         theActivity.loadLRC_Second();
                         for (int i = 0; i < theActivity.pointsList_second.size(); i++) {
-                            if (i > 0 && (theActivity.pointsList_second.get(i).value+66) > theActivity.player.getCurrentPosition()) {
+                            if (i > 0 && (theActivity.pointsList_second.get(i).value + 66) > theActivity.player.getCurrentPosition()) {
                                 theActivity.lrc_text.setText(theActivity.pointsList_second.get(i - 1).str);
                                 break;
                             }
@@ -540,11 +541,13 @@ public class MainActivity extends FragmentActivity {
                     }
                 }
             } catch (Exception e) {
-                theActivity.txtPosition.setText(e.getMessage());
+                theActivity.txtPosition.setText(String.valueOf(my_count_test++) + e.getMessage());
             }
             image.setImageBitmap(bitmap);
         }
     }
+
+    private static int my_count_test = 0;
 
     private final HandlerProgress handlerProgress = new HandlerProgress(this);
 
@@ -576,6 +579,8 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+//        initCustomSetting();
+
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -686,6 +691,7 @@ public class MainActivity extends FragmentActivity {
 //        txtVolume = complexView.findViewById(R.id.txtVolume);
         txtTemp = viewComplex.findViewById(R.id.textView2);
 
+
         btnOpenFile = (Button) viewComplex.findViewById(R.id.btnOpenFile);
         btnLRC = (Button) viewComplex.findViewById(R.id.btnLRC);
         btnClear = (Button) viewComplex.findViewById(R.id.btnClear);
@@ -725,9 +731,8 @@ public class MainActivity extends FragmentActivity {
         lrc_button = viewPlayer.findViewById(R.id.LRC_button);
         clear_button = viewPlayer.findViewById(R.id.clear_button);
         lrc_text = viewPlayer.findViewById(R.id.lrc_text);
-        lrcShow_button=viewPlayer.findViewById(R.id.show_button);
+        lrcShow_button = viewPlayer.findViewById(R.id.show_button);
 
-        initCustomSetting();
 
         String dir = "/storage/emulated/0/";
         if (strFilePath != null && strFilePath.lastIndexOf("/") > 0)
@@ -751,7 +756,7 @@ public class MainActivity extends FragmentActivity {
         lrcShow_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                blPointShow_second=!blPointShow_second;
+                blPointShow_second = !blPointShow_second;
             }
         });
 
@@ -1077,16 +1082,16 @@ public class MainActivity extends FragmentActivity {
         //txtTemp.setText(event.toString());
         //txtText.setText(event.toString());
 
-        if(event.getAction()==KeyEvent.ACTION_DOWN){
-            switch (event.getKeyCode()){
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_BACK:
                     toAdvancePlayOrPause();
                     break;
             }
         }
 
-        if(event.getAction()==KeyEvent.ACTION_UP){
-            switch (event.getKeyCode()){
+        if (event.getAction() == KeyEvent.ACTION_UP) {
+            switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_DPAD_DOWN:
                     toBack(3000);
                     break;
@@ -1489,11 +1494,16 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onStop() {
-        super.onStop();
-
         stopCustomSettings();
-//        unregisterReceiver(keyBroadcastReceiver);
+        super.onStop();
     }
+
+    @Override
+    protected void onStart() {
+        initCustomSetting();
+        super.onStart();
+    }
+
 
     private void stopCustomSettings() {
         String settingFileName = getApplicationContext().getFilesDir() + "/setting.txt";
@@ -1510,12 +1520,42 @@ public class MainActivity extends FragmentActivity {
         } catch (java.io.IOException e) {
             android.util.Log.i("stop", e.getMessage());
         }
+
+        savePoints();
+    }
+
+    private void savePoints() {
+//        String settingFileName = getApplicationContext().getFilesDir() + "/points.txt";
+        String settingFileName = "/storage/emulated/0/points.txt";
+        txtTemp.setText(settingFileName + txtTemp.getText());
+        File file = new File(settingFileName);
+        if (file.exists())
+            file.delete();
+
+        try {
+            file.createNewFile();
+            OutputStream outStream = new FileOutputStream(file);//设置输出流
+            OutputStreamWriter out = new OutputStreamWriter(outStream);//设置内容输出方式
+
+            out.write(String.valueOf(pointList.position) + "\n");
+            android.util.Log.i("position:", String.valueOf(pointList.position) + "\n");
+            SortedList.Node node = pointList.first;
+            while (node != null) {
+                out.write(String.valueOf(node.value) + "\n");//输出内容到文件中
+                android.util.Log.i("value:", String.valueOf(node.value) + "\n");
+                node = node.next;
+            }
+            out.close();
+        } catch (java.io.IOException e) {
+            txtTemp.setText(e.getMessage() + txtTemp.getText());
+        }
     }
 
     private void initCustomSetting() {
         String settingFileName = getApplicationContext().getFilesDir() + "/setting.txt";
-        File file = new File(settingFileName);
 
+        File file = new File(settingFileName);
+        android.util.Log.i("exist_file:", String.valueOf(file.exists()));
         try {
 //            float speed= (float) 0.5;
 //            player.setPlaybackParams(player.getPlaybackParams().setSpeed(speed));
@@ -1525,14 +1565,16 @@ public class MainActivity extends FragmentActivity {
                 InputStreamReader inputReader = new InputStreamReader(inputStream);//设置流读取方式
                 BufferedReader bufferedReader = new BufferedReader(inputReader);
                 String line = bufferedReader.readLine();
+                android.util.Log.i("exist_file:", line);
                 strFilePath = line;
                 player.reset();
                 player.setDataSource(line);
                 player.prepare();
+                txtTemp.setText("准备初始化了！"+txtTemp.getText());
                 initPoint();
             }
         } catch (Exception e) {
-            //txtTemp.setText(e.getMessage());
+            txtTemp.setText(e.getMessage()+txtTemp.getText());
         }
     }
 
@@ -1540,6 +1582,39 @@ public class MainActivity extends FragmentActivity {
         pointList = new SortedList();
         pointList.insertByOrder(0);
         pointList.insertByOrder(player.getDuration());
+        txtTemp.setText("已经初始化了！"+txtTemp.getText());
+        initEveryPoints();
+
+    }
+
+    private void initEveryPoints() {
+        //
+        //String settingFileName = getApplicationContext().getFilesDir() + "/points.txt";
+        String settingFileName = "/storage/emulated/0/points.txt";
+        txtTemp.setText(settingFileName + txtTemp.getText());
+        File file = new File(settingFileName);
+
+        if (file.exists()) {
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                String line = reader.readLine();
+                txtTemp.setText("\n[f]" + line + "[f]\n" + txtTemp.getText());
+                if (line != null) {
+                    Log.i("find_line", line);
+                    txtTemp.setText("\n[fp]" + pointList.position + "[fp]\n" + txtTemp.getText());
+                    pointList.position = Integer.parseInt(line);
+                    line = reader.readLine();
+                    while (line != null) {
+                        Log.i("find_line", line);
+                        txtTemp.setText(line + "[line]\n" + txtTemp.getText());
+                        pointList.insertByOrder(Double.parseDouble(line));
+                        line = reader.readLine();
+                    }
+                }
+            } catch (Exception e) {
+                txtTemp.setText(e.getMessage() + txtTemp.getText());
+            }
+        }
     }
 
     public static String encoder(String filePath) throws Exception {
