@@ -1095,8 +1095,12 @@ public class MainActivity extends FragmentActivity {
                 case KeyEvent.KEYCODE_DPAD_DOWN:
                     toBack(3000);
                     break;
+
                 case KeyEvent.KEYCODE_DPAD_UP:
-                    toBack(6000);
+                    toPre();
+                    break;
+                case KeyEvent.KEYCODE_E:
+                    toNext();
                     break;
             }
         }
