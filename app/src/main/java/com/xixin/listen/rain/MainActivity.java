@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.icu.text.IDNA;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -433,117 +434,124 @@ public class MainActivity extends FragmentActivity {
             super.handleMessage(msg);
             switch (msg.what) {
                 case 1:
-                    ImageView image = theActivity.imageViewProgress;
-                    progressShow(theActivity, image);
-                    image = theActivity.findViewById(R.id.surfaceViewProgress_player);
-                    progressShow(theActivity, image);
+                    try {
+                        ImageView image = theActivity.imageViewProgress;
+                        progressShow(theActivity, image);
+                        image = theActivity.findViewById(R.id.surfaceViewProgress_player);
+                        progressShow(theActivity, image);
+                    } catch (Exception e) {
+                        //theActivity.txtPosition.setText(e.getMessage());
+                    }
                     break;
             }
         }
 
         private void progressShow(MainActivity theActivity, ImageView image) {
-            MediaPlayer player = theActivity.player;
-            SortedList list = theActivity.pointList;
-
-            int width = image.getWidth();
-            int height = image.getHeight();
-
-            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            Paint paint = new Paint();
-            paint.setColor(Color.argb(0xff, 0x11, 0x11, 0x11));
-            canvas.drawRect(0, 0, width, height, paint);
-            paint.setColor(Color.argb(0xff, 0x88, 0x88, 0x88));
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(1);
-            canvas.drawRect(40, 30, 1040, 90, paint);
-            //canvas.drawRect(40, 40, 1040, 80, paint);
             try {
-                if (player.getDuration() > 0) {
-                    int duration = player.getDuration();
-                    int position = player.getCurrentPosition();
-                    int value = (position * 1000) / duration;
-                    int startValue = (int) ((Math.round(list.getValueByPosition(list.position) * 1000) / duration) + 40);
-                    paint.setStyle(Paint.Style.FILL);
-                    canvas.drawRect(startValue, 46, value + 40, 74, paint);
-                    paint.setStyle(Paint.Style.STROKE);
-                    paint.setStrokeWidth(3);
-                    for (int i = 0; i < list.getSize(); i++) {
-                        value = (int) ((Math.round(list.getValueByPosition(i)) * 1000) / duration + 40);
-                        canvas.drawLine(value, 30, value, 90, paint);
-                    }
-                    value = (int) ((Math.round(list.getValueByPosition(list.position) * 1000) / duration) + 40);
-                    paint.setStyle(Paint.Style.FILL);
-                    canvas.drawCircle(value, 82, 6, paint);
-                    if (player.getCurrentPosition() >= list.getNextPoint())
-                        player.pause();
-                    String str = "#";
-                    for (int i = 0; i < theActivity.pointList.getSize(); i++)
-                        str = str + " " + theActivity.pointList.getValueByPosition(i);
-                    int m = (position / 1000) / 60;
-                    int s = (position / 1000) % 60;
-                    long currentPoint = (long) list.getCurrentPoint();
-                    String currentPointString = String.valueOf((currentPoint / 1000) / 60) + "分" + String.valueOf((currentPoint / 1000) % 60) + "秒";
-                    long lastPoint = (long) list.getLastPoint();
-                    String lastPointString = String.valueOf((lastPoint / 1000) / 60) + "分" + String.valueOf((lastPoint / 1000) % 60) + "秒";
-                    theActivity.txtPosition.setText(currentPointString + "->" + String.valueOf(m) + "分" + String.valueOf(s) + "秒/" + lastPointString +
-                            " [" + "音量:" + String.valueOf(theActivity.getCurrentVolume()) + " 速度:" + String.valueOf(theActivity.playSpeed) + "]");
+                MediaPlayer player = theActivity.player;
+                SortedList list = theActivity.pointList;
 
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
-                    String hour = "";
-                    if (cal.get(Calendar.AM_PM) == 0)
-                        hour = String.valueOf(cal.get(Calendar.HOUR));
-                    else
-                        hour = String.valueOf(cal.get(Calendar.HOUR) + 12);
-                    String minute = String.valueOf(cal.get(Calendar.MINUTE));
-                    String second = String.valueOf(cal.get(Calendar.SECOND));
-                    theActivity.txtCurrentTime.setText("[时间：" + hour + "时" + minute + "分]");//+second+"秒]");
+                int width = image.getWidth();
+                int height = image.getHeight();
 
-                    if (theActivity.isShowText) {
-                        theActivity.btnShowText.setText("隐藏");
-                        theActivity.btnShowTextInSecond.setText("隐");
-                        str = list.getCurrentDataString();
-                        if (str != null) {
-                            theActivity.txtText.setText(str);
-                            theActivity.txtShowTextInSecond.setText(str);
+                Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bitmap);
+                Paint paint = new Paint();
+                paint.setColor(Color.argb(0xff, 0x11, 0x11, 0x11));
+                canvas.drawRect(0, 0, width, height, paint);
+                paint.setColor(Color.argb(0xff, 0x88, 0x88, 0x88));
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(1);
+                canvas.drawRect(40, 30, 1040, 90, paint);
+                //canvas.drawRect(40, 40, 1040, 80, paint);
+                try {
+                    if (player.getDuration() > 0) {
+                        int duration = player.getDuration();
+                        int position = player.getCurrentPosition();
+                        int value = (position * 1000) / duration;
+                        int startValue = (int) ((Math.round(list.getValueByPosition(list.position) * 1000) / duration) + 40);
+                        paint.setStyle(Paint.Style.FILL);
+                        canvas.drawRect(startValue, 46, value + 40, 74, paint);
+                        paint.setStyle(Paint.Style.STROKE);
+                        paint.setStrokeWidth(3);
+                        for (int i = 0; i < list.getSize(); i++) {
+                            value = (int) ((Math.round(list.getValueByPosition(i)) * 1000) / duration + 40);
+                            canvas.drawLine(value, 30, value, 90, paint);
+                        }
+                        value = (int) ((Math.round(list.getValueByPosition(list.position) * 1000) / duration) + 40);
+                        paint.setStyle(Paint.Style.FILL);
+                        canvas.drawCircle(value, 82, 6, paint);
+                        if (player.getCurrentPosition() >= list.getNextPoint())
+                            player.pause();
+                        String str = "#";
+                        for (int i = 0; i < theActivity.pointList.getSize(); i++)
+                            str = str + " " + theActivity.pointList.getValueByPosition(i);
+                        int m = (position / 1000) / 60;
+                        int s = (position / 1000) % 60;
+                        long currentPoint = (long) list.getCurrentPoint();
+                        String currentPointString = String.valueOf((currentPoint / 1000) / 60) + "分" + String.valueOf((currentPoint / 1000) % 60) + "秒";
+                        long lastPoint = (long) list.getLastPoint();
+                        String lastPointString = String.valueOf((lastPoint / 1000) / 60) + "分" + String.valueOf((lastPoint / 1000) % 60) + "秒";
+                        theActivity.txtPosition.setText(currentPointString + "->" + String.valueOf(m) + "分" + String.valueOf(s) + "秒/" + lastPointString +
+                                " [" + "音量:" + String.valueOf(theActivity.getCurrentVolume()) + " 速度:" + String.valueOf(theActivity.playSpeed) + "]");
+
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
+                        String hour = "";
+                        if (cal.get(Calendar.AM_PM) == 0)
+                            hour = String.valueOf(cal.get(Calendar.HOUR));
+                        else
+                            hour = String.valueOf(cal.get(Calendar.HOUR) + 12);
+                        String minute = String.valueOf(cal.get(Calendar.MINUTE));
+                        String second = String.valueOf(cal.get(Calendar.SECOND));
+                        theActivity.txtCurrentTime.setText("[时间：" + hour + "时" + minute + "分]");//+second+"秒]");
+
+                        if (theActivity.isShowText) {
+                            theActivity.btnShowText.setText("隐藏");
+                            theActivity.btnShowTextInSecond.setText("隐");
+                            str = list.getCurrentDataString();
+                            if (str != null) {
+                                theActivity.txtText.setText(str);
+                                theActivity.txtShowTextInSecond.setText(str);
+                            } else {
+                                theActivity.txtText.setText("无");
+                                theActivity.txtShowTextInSecond.setText("");
+                            }
                         } else {
-                            theActivity.txtText.setText("无");
+                            theActivity.btnShowText.setText("显示");
+                            theActivity.btnShowTextInSecond.setText("显");
+                            theActivity.txtText.setText("");
                             theActivity.txtShowTextInSecond.setText("");
                         }
-                    } else {
-                        theActivity.btnShowText.setText("显示");
-                        theActivity.btnShowTextInSecond.setText("显");
-                        theActivity.txtText.setText("");
-                        theActivity.txtShowTextInSecond.setText("");
-                    }
 
-                    theActivity.txtFilePath.setText(theActivity.strFilePath);
+                        theActivity.txtFilePath.setText(theActivity.strFilePath);
 
-                    theActivity.showVolume();
+                        theActivity.showVolume();
 
-                    if (theActivity.player.isPlaying()) {
-                        theActivity.play_pause_button.setBackgroundResource(R.drawable.ic_pause_unpressed);
-                    } else
-                        theActivity.play_pause_button.setBackgroundResource(R.drawable.ic_play_unpressed);
+                        if (theActivity.player.isPlaying()) {
+                            theActivity.play_pause_button.setBackgroundResource(R.drawable.ic_pause_unpressed);
+                        } else
+                            theActivity.play_pause_button.setBackgroundResource(R.drawable.ic_play_unpressed);
 
-                    if (theActivity.blPointShow_second) {
-                        theActivity.lrc_text.setText("No");
-                        theActivity.loadLRC_Second();
-                        for (int i = 0; i < theActivity.pointsList_second.size(); i++) {
-                            if (i > 0 && (theActivity.pointsList_second.get(i).value + 66) > theActivity.player.getCurrentPosition()) {
-                                theActivity.lrc_text.setText(theActivity.pointsList_second.get(i - 1).str);
-                                break;
+                        if (theActivity.blPointShow_second) {
+                            theActivity.lrc_text.setText("No");
+                            theActivity.loadLRC_Second();
+                            for (int i = 0; i < theActivity.pointsList_second.size(); i++) {
+                                if (i > 0 && (theActivity.pointsList_second.get(i).value + 66) > theActivity.player.getCurrentPosition()) {
+                                    theActivity.lrc_text.setText(theActivity.pointsList_second.get(i - 1).str);
+                                    break;
+                                }
                             }
+                        } else {
+                            theActivity.lrc_text.setText("");
                         }
-                    } else {
-                        theActivity.lrc_text.setText("");
                     }
+                } catch (Exception e) {
+                    theActivity.txtPosition.setText(String.valueOf(my_count_test++) + e.getMessage());
                 }
+                image.setImageBitmap(bitmap);
             } catch (Exception e) {
-                theActivity.txtPosition.setText(String.valueOf(my_count_test++) + e.getMessage());
             }
-            image.setImageBitmap(bitmap);
         }
     }
 
@@ -559,11 +567,15 @@ public class MainActivity extends FragmentActivity {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
-                    txtPosition.setText(e.getMessage());
+//                    txtPosition.setText(e.getMessage());
                 }
-                Message message = new Message();
-                message.what = 1;
-                handlerProgress.sendMessage(message);
+                try {
+                    Message message = new Message();
+                    message.what = 1;
+                    handlerProgress.sendMessage(message);
+                } catch (Exception e) {
+                    //
+                }
             }
         }
     }
@@ -1574,11 +1586,11 @@ public class MainActivity extends FragmentActivity {
                 player.reset();
                 player.setDataSource(line);
                 player.prepare();
-                txtTemp.setText("准备初始化了！"+txtTemp.getText());
+                txtTemp.setText("准备初始化了！" + txtTemp.getText());
                 initPoint();
             }
         } catch (Exception e) {
-            txtTemp.setText(e.getMessage()+txtTemp.getText());
+            txtTemp.setText(e.getMessage() + txtTemp.getText());
         }
     }
 
@@ -1586,7 +1598,7 @@ public class MainActivity extends FragmentActivity {
         pointList = new SortedList();
         pointList.insertByOrder(0);
         pointList.insertByOrder(player.getDuration());
-        txtTemp.setText("已经初始化了！"+txtTemp.getText());
+        txtTemp.setText("已经初始化了！" + txtTemp.getText());
         initEveryPoints();
 
     }
