@@ -78,6 +78,7 @@ public class MainActivity extends FragmentActivity {
     private MediaPlayer recordPlayer;
     private MediaRecorder mediaRecorder;
     private ProgressDialog recordDialog;
+    private int MediaDuration = 100;
 
     String strRecordPath;
     boolean isRecording = false;
@@ -450,6 +451,7 @@ public class MainActivity extends FragmentActivity {
             try {
                 MediaPlayer player = theActivity.player;
                 SortedList list = theActivity.pointList;
+                if (player == null || list == null) return;
 
                 int width = image.getWidth();
                 int height = image.getHeight();
@@ -585,8 +587,11 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        threadProgress.start();
+        try {
+            threadProgress.start();
+        } catch (Exception e) {
+            Log.v("123", "thread err my");
+        }
     }
 
     @Override
@@ -1062,6 +1067,10 @@ public class MainActivity extends FragmentActivity {
                 toNextLesson();
             }
         });
+
+        /////////////////////////////////////
+        ////////////////////////////////////
+        initCustomSetting();
     }
 
     private void toRecordPlayStop() {
@@ -1097,8 +1106,23 @@ public class MainActivity extends FragmentActivity {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_BACK:
+                case KeyEvent.KEYCODE_NUMPAD_ADD:
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
                     toAdvancePlayOrPause();
                     break;
+                case KeyEvent.KEYCODE_NUMPAD_DIVIDE:
+                    toBack();
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                    toBack(6000);
+                case KeyEvent.KEYCODE_NUMPAD_MULTIPLY:
+                    toForward();
+                    break;
+                case KeyEvent.KEYCODE_NUMPAD_SUBTRACT:
+                    toRePlay();
+                    break;
+
+
             }
         }
 
@@ -1291,6 +1315,8 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void toAdvancePlayOrPause() {
+        if (pointList == null || player == null) return;
+
         if ((!player.isPlaying()) && (pointList.getNextPoint() <= player.getCurrentPosition()))
             toRePlay();
         else
@@ -1510,13 +1536,19 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onStop() {
-        stopCustomSettings();
+
         super.onStop();
     }
 
     @Override
+    protected void onDestroy() {
+        stopCustomSettings();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onStart() {
-        initCustomSetting();
+
         super.onStart();
     }
 
@@ -1533,7 +1565,7 @@ public class MainActivity extends FragmentActivity {
             OutputStreamWriter out = new OutputStreamWriter(outStream);//设置内容输出方式
             out.write(strFilePath + "\n");//输出内容到文件中
             out.close();
-        } catch (java.io.IOException e) {
+        } catch (Exception e) {
             android.util.Log.i("stop", e.getMessage());
         }
 
@@ -1562,7 +1594,7 @@ public class MainActivity extends FragmentActivity {
                 node = node.next;
             }
             out.close();
-        } catch (java.io.IOException e) {
+        } catch (Exception e) {
             txtTemp.setText(e.getMessage() + txtTemp.getText());
         }
     }
@@ -1595,12 +1627,16 @@ public class MainActivity extends FragmentActivity {
     }
 
     protected void initPoint() {
-        pointList = new SortedList();
-        pointList.insertByOrder(0);
-        pointList.insertByOrder(player.getDuration());
-        txtTemp.setText("已经初始化了！" + txtTemp.getText());
-        initEveryPoints();
-
+        if (player == null) return;
+        try {
+            pointList = new SortedList();
+            pointList.insertByOrder(0);
+            pointList.insertByOrder(player.getDuration());
+            txtTemp.setText("已经初始化了！" + txtTemp.getText());
+            initEveryPoints();
+        } catch (Exception e) {
+            Log.v("123", e.getMessage());
+        }
     }
 
     private void initEveryPoints() {
