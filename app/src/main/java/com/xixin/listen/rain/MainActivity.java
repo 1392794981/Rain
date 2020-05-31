@@ -842,14 +842,15 @@ public class MainActivity extends FragmentActivity {
                                         }
                                     }
                                 }
+                                txtTemp.setText("切分程序完成\n" + txtTemp.getText());
                             }
-
                         } catch (Exception e) {
                             Log.v("listSize_err", e.getMessage());
                         }
                     }
+                } else {
+                    showToast("不能智能断句，\nwav文件才能断句！");
                 }
-                txtTemp.setText("切分程序完成\n" + txtTemp.getText());
             }
         });
 
@@ -1445,6 +1446,7 @@ public class MainActivity extends FragmentActivity {
             strFilePath = fileName;
             loadSound(strFilePath);
             pointList.clearPoint();
+            loadLRC();
             toRePlay();
         }
     }
@@ -1463,6 +1465,7 @@ public class MainActivity extends FragmentActivity {
             strFilePath = fileName;
             loadSound(strFilePath);
             pointList.clearPoint();
+            loadLRC();
             toRePlay();
         }
     }
@@ -1584,7 +1587,12 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void toLRC() {
-        loadLRC();
+        boolean isSuccess = loadLRC();
+        if(isSuccess){
+            showToast("lrc加载成功！");
+        }else {
+            showToast("lrc没有加载！");
+        }
     }
 
     private void toShowText() {
@@ -1826,7 +1834,7 @@ public class MainActivity extends FragmentActivity {
     ArrayList<LRCShow> pointsList_second = new ArrayList<>();
     boolean blPointShow_second = false;
 
-    protected void loadLRC() {
+    protected boolean loadLRC() {
         pointList.clearPoint();
         try {
             String fileName = strFilePath.substring(0, strFilePath.length() - 4) + ".lrc";
@@ -1854,13 +1862,14 @@ public class MainActivity extends FragmentActivity {
                 }
                 br.close();
                 txtTemp.setText("lrc加载成功！\n");
-                showToast("lrc加载成功！");
+                return true;
             } else {
-                showToast("lrc文件不存在！");
+                return false;
             }
         } catch (Exception e) {
             Log.v("lrc", e.getMessage());
         }
+        return false;
     }
 
     /**
