@@ -292,39 +292,75 @@
         app:layout_constraintTop_toTopOf="@+id/txtPosition" />
 
     <Button
-        android:id="@+id/btnRecordPlayStop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/btnSaveLRC"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
         android:background="@drawable/buttonstyle"
-        android:text="播放停止"
+        android:text="存LRC"
+        android:textColor="#888"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnShowConvert"
+        app:layout_constraintTop_toTopOf="@+id/btnShowConvert"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/btnShowConvert"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:background="@drawable/buttonstyle"
+        android:text="显隐"
+        android:textColor="#888"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnSpanAdd"
+        app:layout_constraintTop_toTopOf="@+id/btnSpanAdd"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/btnSpanAdd"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:background="@drawable/buttonstyle"
+        android:text="＋"
+        android:textColor="#888"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnSpanSub"
+        app:layout_constraintTop_toTopOf="@+id/btnSpanSub"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/btnSpanSub"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:background="@drawable/buttonstyle"
+        android:text="—"
         android:textColor="#888"
         app:layout_constraintBottom_toBottomOf="@+id/btnSpeedDown"
-        app:layout_constraintEnd_toStartOf="@+id/btnRecordPlay"
+        app:layout_constraintEnd_toStartOf="@+id/btnDivide"
         app:layout_constraintTop_toTopOf="@+id/btnSpeedDown" />
 
     <Button
-        android:id="@+id/btnRecordPlay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/btnDivide"
+        android:layout_width="55dp"
+        android:layout_height="44dp"
         android:background="@drawable/buttonstyle"
-        android:text="录音播放"
+        android:text="切分"
         android:textColor="#888"
         app:layout_constraintBottom_toBottomOf="@+id/btnSpeedDown"
-        app:layout_constraintEnd_toStartOf="@+id/btnRecord"
+        app:layout_constraintEnd_toStartOf="@+id/btnToWav"
         app:layout_constraintTop_toTopOf="@+id/btnSpeedDown" />
 
     <Button
-        android:id="@+id/btnRecord"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="0dp"
+        android:id="@+id/btnToWav"
+        android:layout_width="55dp"
+        android:layout_height="44dp"
         android:background="@drawable/buttonstyle"
-        android:text="开始录音"
+        android:text="转wav"
         android:textColor="#888"
         app:layout_constraintBottom_toBottomOf="@+id/btnSpeedDown"
         app:layout_constraintEnd_toEndOf="@+id/btnNext"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btnSpeedDown" />
+
 
     <Button
         android:id="@+id/btnForwardLesson"

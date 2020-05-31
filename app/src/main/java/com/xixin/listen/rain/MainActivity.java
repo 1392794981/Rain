@@ -13,7 +13,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.icu.text.IDNA;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -21,7 +20,6 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
@@ -110,16 +108,18 @@ public class MainActivity extends FragmentActivity {
     float playSpeed = 1.0f;
     final int REQUEST_CODE_OPEN_FILE = 6;
 
+    double divideSpan = 0.8;
+
     static MediaPlayer player = new MediaPlayer();
     AudioManager audioManager;
     FileDialog fileDialog;
 
     TextView txtFilePath, txtPosition, txtText, txtTemp, txtCurrentTime;//txtVolume,
-    Button btnOpenFile, btnLRC, btnClear, btnForward, btnBack, btnRePlay, btnPlayOrPause, btnPre, btnNext, btnInsertPoint, btnDelPoint, btnShowText, btnVolumeUp, btnVolumeDown;
+    Button btnOpenFile, btnSaveLRC, btnLRC, btnClear, btnForward, btnBack, btnRePlay, btnPlayOrPause, btnPre, btnNext, btnInsertPoint, btnDelPoint, btnShowText, btnVolumeUp, btnVolumeDown;
     Button btnSpeedUp, btnSpeedDown;
     TextView txtShowTextInSecond;
     Button btnShowTextInSecond, btnNextInSecond, btnAnotherNextInSecond, btnPreInSecond;
-    Button btnRecord, btnRecordPlay, btnRecordPlayStop;
+    Button btnToWav, btnShowConvert, btnDivide, btnSpanAdd, btnSpanSub, btnRecordPlay, btnRecordPlayStop;
     Button btnForwardLesson, btnNextLesson;
 
     Button play_pause_button, backword_button, farward_button, repeat_button, next_button, pre_button, farnext_button, farpre_button;
@@ -169,39 +169,39 @@ public class MainActivity extends FragmentActivity {
     /**
      * 开始录制音频
      */
-    private void startAudioRecord() {
-        audioRecord.startRecording();//开始录制
-
-        isRecording = true;
-        btnRecord.setText("停止录音");
-        btnRecord.setBackgroundColor(Color.rgb(0x44, 0x44, 0x44));
-
-        new AudioRecordThread().start();//开启线程来把录制的音频数据保留下来
-    }
+//    private void startAudioRecord() {
+//        audioRecord.startRecording();//开始录制
+//
+//        isRecording = true;
+//        btnToWav.setText("停止录音");
+//        btnToWav.setBackgroundColor(Color.rgb(0x44, 0x44, 0x44));
+//
+//        new AudioRecordThread().start();//开启线程来把录制的音频数据保留下来
+//    }
 
     /**
      * 停止录制音频
      */
-    private void stopAudioRecord() {
-        close();
-    }
+//    private void stopAudioRecord() {
+//        close();
+//    }
 
-    private void close() {
-        if (audioRecord != null) {
-            System.out.println("stopRecord");
-
-            isRecording = false;
-            txtTemp.setText(strRecordPath);
-            btnRecord.setText("开始录音");
-            btnRecord.setBackgroundResource(R.drawable.buttonstyle);
-
-            audioRecord.stop();
-            audioRecord.release();//释放资源
-            audioRecord = null;
-
-            creatAudioRecord();
-        }
-    }
+//    private void close() {
+//        if (audioRecord != null) {
+//            System.out.println("stopRecord");
+//
+//            isRecording = false;
+//            txtTemp.setText(strRecordPath);
+//            btnToWav.setText("开始录音");
+//            btnToWav.setBackgroundResource(R.drawable.buttonstyle);
+//
+//            audioRecord.stop();
+//            audioRecord.release();//释放资源
+//            audioRecord = null;
+//
+//            creatAudioRecord();
+//        }
+//    }
 
     /**
      * 音频数据写入线程
@@ -698,6 +698,7 @@ public class MainActivity extends FragmentActivity {
             });
 
         } catch (Exception e) {
+            Log.v("mm", e.getMessage());
             txtTemp.setText(e.getMessage() + txtTemp.getText());
         }
 
@@ -711,6 +712,7 @@ public class MainActivity extends FragmentActivity {
 
         btnOpenFile = (Button) viewComplex.findViewById(R.id.btnOpenFile);
         btnLRC = (Button) viewComplex.findViewById(R.id.btnLRC);
+        btnSaveLRC = (Button) viewComplex.findViewById(R.id.btnSaveLRC);
         btnClear = (Button) viewComplex.findViewById(R.id.btnClear);
         btnForward = (Button) viewComplex.findViewById(R.id.btnForward);
         btnBack = (Button) viewComplex.findViewById(R.id.btnBack);
@@ -725,11 +727,14 @@ public class MainActivity extends FragmentActivity {
         btnVolumeDown = viewComplex.findViewById(R.id.btnVolumeDown);
         btnSpeedDown = viewComplex.findViewById(R.id.btnSpeedDown);
         btnSpeedUp = viewComplex.findViewById(R.id.btnSpeedUp);
-        btnRecord = viewComplex.findViewById(R.id.btnRecord);
-        btnRecordPlay = viewComplex.findViewById(R.id.btnRecordPlay);
-        btnRecordPlayStop = viewComplex.findViewById(R.id.btnRecordPlayStop);
+        btnToWav = viewComplex.findViewById(R.id.btnToWav);
+        btnDivide = viewComplex.findViewById(R.id.btnDivide);
+        btnSpanSub = viewComplex.findViewById(R.id.btnSpanSub);
+        btnSpanAdd = viewComplex.findViewById(R.id.btnSpanAdd);
         btnForwardLesson = viewComplex.findViewById(R.id.btnForwardLesson);
         btnNextLesson = viewComplex.findViewById(R.id.btnNextLesson);
+
+        btnShowConvert = viewComplex.findViewById(R.id.btnShowConvert);
 
         txtShowTextInSecond = viewSimple.findViewById(R.id.txtShowTextInSecond);
         btnNextInSecond = viewSimple.findViewById(R.id.btnNextInSecond);
@@ -781,6 +786,88 @@ public class MainActivity extends FragmentActivity {
             @Override
             public void onClick(View view) {
                 toAdvancePlayOrPause();
+            }
+        });
+
+        btnShowConvert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                txtTemp.setVisibility(txtTemp.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+            }
+        });
+
+        btnDivide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (strFilePath.endsWith("wav") == true) {
+                    File wavFile = new File(strFilePath);
+                    if (wavFile.exists()) {
+                        try {
+                            WaveFileReader reader = new WaveFileReader(strFilePath);
+                            if (reader.isSuccess()) {
+                                int[] data = reader.getData()[0]; //获取第一声道
+                                int start = 0;
+                                Log.v("listSize_DataLen", Long.toString(reader.getDataLen()));
+                                Log.v("listSize_SampleRate", Long.toString(reader.getSampleRate()));
+                                Log.v("listSize_numChannels", Long.toString(reader.getNumChannels()));
+                                Log.v("listSize_bitPerSample", Long.toString(reader.getBitPerSample()));
+                                boolean startBegin = false;
+                                pointList.clearPoint();
+                                int valve = reader.getBitPerSample() == 8 ? 0x2f : 0x2ff;
+                                Log.v("listSize_valve", Long.toString(valve));
+                                for (int i = 0; i < reader.getDataLen(); i++) {
+//                                    Log.v("wav1:", Integer.toString(data[i]));
+                                    if (Math.abs(data[i]) < valve) {
+                                        if (startBegin == false) {
+                                            start = i;
+                                            startBegin = true;
+                                        }
+                                    } else {
+//                                        Log.v("listSize_start", Double.toString(i));
+                                        if (startBegin == true) {
+                                            startBegin = false;
+                                            double span = i - start;
+                                            if (span > (divideSpan * reader.getSampleRate())) {
+                                                double doublePoint = start + (span / 2);
+                                                doublePoint = (doublePoint) / (((double) reader.getSampleRate()) / 1000);
+                                                long point = (long) doublePoint;
+                                                pointList.insertByOrder(point);
+//                                                Log.v("listSize_point_divideSpan", Double.toString(divideSpan));
+//                                                Log.v("listSize_point_i", Float.toString(i));
+//                                                Log.v("listSize_point_start", Float.toString(start));
+//                                                Log.v("listSize_span", Double.toString(span));
+//                                                Log.v("listSize_doublePoint", Double.toString(doublePoint));
+//                                                Log.v("listSize_point", Long.toString(point));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        } catch (Exception e) {
+                            Log.v("listSize_err", e.getMessage());
+                        }
+                    }
+                }
+                txtTemp.setText("切分程序完成\n" + txtTemp.getText());
+            }
+        });
+
+        btnSpanAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                divideSpan = divideSpan + 0.1;
+                txtTemp.setText(Double.toString(divideSpan));
+            }
+        });
+
+        btnSpanSub.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (divideSpan > 0.1) {
+                    divideSpan = divideSpan - 0.1;
+                }
+                txtTemp.setText(Double.toString(divideSpan));
             }
         });
 
@@ -889,6 +976,13 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
+        btnSaveLRC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SaveLRC();
+            }
+        });
+
         btnLRC.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -980,31 +1074,32 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
-        btnRecordPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                toPlayRecord();
-                File file = new File(strFilePath + ".txt");
-                try {
-                    FileOutputStream fileOutputStream = new FileOutputStream(file);
-                    fileOutputStream.write("I am a chinese".getBytes());
-                    fileOutputStream.close();
-                    txtTemp.setText("写入成功！");
-                } catch (Exception e) {
-                    txtTemp.setText(e.getMessage());
-                }
+//        btnRecordPlay.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+////                toPlayRecord();
+//                File file = new File(strFilePath + ".txt");
+//                try {
+//                    FileOutputStream fileOutputStream = new FileOutputStream(file);
+//                    fileOutputStream.write("I am a chinese".getBytes());
+//                    fileOutputStream.close();
+//                    txtTemp.setText("写入成功！");
+//                } catch (Exception e) {
+//                    txtTemp.setText(e.getMessage());
+//                }
+//
+//            }
+//        });
 
-            }
-        });
-
-        btnRecord.setOnClickListener(new View.OnClickListener() {
+        btnToWav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //========================
                 try {
 
-                    String wavFileName = Environment.getExternalStorageDirectory() + "/create.wav";
-                    String cmd = "-i " + strFilePath + " " + wavFileName;
+//                    String wavFileName = Environment.getExternalStorageDirectory() + "/create.wav";
+                    final String wavFileName = strFilePath.substring(0, strFilePath.length() - 4) + ".wav";
+                    String cmd = "-i " + strFilePath + " -f wav " + wavFileName;
                     File file = new File(wavFileName);
                     if (file.exists()) {
                         file.delete();
@@ -1020,6 +1115,15 @@ public class MainActivity extends FragmentActivity {
                         @Override
                         public void onSuccess(String s) {
                             txtTemp.setText("\nSUCCESS with output : " + s + txtTemp.getText());
+                            strFilePath = wavFileName;
+                            player.reset();
+                            try {
+                                player.setDataSource(strFilePath);
+                                player.prepare();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
                         }
 
                         @Override
@@ -1046,13 +1150,13 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
-        btnRecordPlayStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                toRecordPlayStop();
-                txtTemp.setVisibility(txtTemp.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
-            }
-        });
+//        btnRecordPlayStop.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+////                toRecordPlayStop();
+//                txtTemp.setVisibility(txtTemp.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+//            }
+//        });
 
         btnForwardLesson.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1071,6 +1175,7 @@ public class MainActivity extends FragmentActivity {
         /////////////////////////////////////
         ////////////////////////////////////
         initCustomSetting();
+
     }
 
     private void toRecordPlayStop() {
@@ -1122,15 +1227,15 @@ public class MainActivity extends FragmentActivity {
                     toRePlay();
                     break;
 
-
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    toBack(6000);
+                    break;
             }
         }
 
         if (event.getAction() == KeyEvent.ACTION_UP) {
             switch (event.getKeyCode()) {
-                case KeyEvent.KEYCODE_DPAD_DOWN:
-                    toBack(3000);
-                    break;
+
 
                 case KeyEvent.KEYCODE_DPAD_UP:
                     toPre();
@@ -1365,22 +1470,22 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void toStopRecord() {
-        stopAudioRecord();
+//        stopAudioRecord();
 //        try {
 //            mediaRecorder.stop();
 //            mediaRecorder.reset();
 //            isRecording = false;
 //            txtTemp.setText(strRecordPath);
-//            btnRecord.setText("开始录音");
-//            btnRecord.setBackgroundColor(Color.rgb(0x11, 0x11, 0x11));
-//            btnRecord.setBackgroundResource(R.drawable.buttonstyle);
+//            btnToWav.setText("开始录音");
+//            btnToWav.setBackgroundColor(Color.rgb(0x11, 0x11, 0x11));
+//            btnToWav.setBackgroundResource(R.drawable.buttonstyle);
 //        } catch (Exception e) {
 //            txtTemp.setText(e.getMessage());
 //        }
     }
 
     private void toStartRecord() {
-        startAudioRecord();
+//        startAudioRecord();
 //        if (checkPermission()) {
 //            try {
 //                mediaRecorder.setOutputFile(strRecordPath);
@@ -1390,8 +1495,8 @@ public class MainActivity extends FragmentActivity {
 //                mediaRecorder.prepare();
 //                mediaRecorder.start();
 //                isRecording = true;
-//                btnRecord.setText("停止录音");
-//                btnRecord.setBackgroundColor(Color.rgb(0x44, 0x44, 0x44));
+//                btnToWav.setText("停止录音");
+//                btnToWav.setBackgroundColor(Color.rgb(0x44, 0x44, 0x44));
 //                txtTemp.setText("正在录音....");
 //            } catch (Exception e) {
 //                txtTemp.setText(e.getMessage());
@@ -1536,13 +1641,13 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onStop() {
+        stopCustomSettings();
 
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        stopCustomSettings();
         super.onDestroy();
     }
 
@@ -1554,19 +1659,19 @@ public class MainActivity extends FragmentActivity {
 
 
     private void stopCustomSettings() {
-        String settingFileName = getApplicationContext().getFilesDir() + "/setting.txt";
+        String settingFileName = "/storage/emulated/0/setting.txt";
         File file = new File(settingFileName);
         if (file.exists())
             file.delete();
-
         try {
             file.createNewFile();
             OutputStream outStream = new FileOutputStream(file);//设置输出流
             OutputStreamWriter out = new OutputStreamWriter(outStream);//设置内容输出方式
             out.write(strFilePath + "\n");//输出内容到文件中
+            Log.i("my_stop", strFilePath);
             out.close();
         } catch (Exception e) {
-            android.util.Log.i("stop", e.getMessage());
+            android.util.Log.i("my_stop", e.getMessage());
         }
 
         savePoints();
@@ -1600,7 +1705,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void initCustomSetting() {
-        String settingFileName = getApplicationContext().getFilesDir() + "/setting.txt";
+        String settingFileName = "/storage/emulated/0/setting.txt";
 
         File file = new File(settingFileName);
         android.util.Log.i("exist_file:", String.valueOf(file.exists()));
@@ -1721,7 +1826,38 @@ public class MainActivity extends FragmentActivity {
 //                    pointList.insertByOrder(value, string);
                 }
                 br.close();
+                showToast("lrc加载成功！");
             }
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
+        }
+    }
+
+    /**
+     *
+     */
+    protected void SaveLRC() {
+
+        String fileName = strFilePath.substring(0, strFilePath.length() - 4) + ".lrc";
+        File file = new File(fileName);
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            file.createNewFile();
+            OutputStream outStream = new FileOutputStream(file);//设置输出流
+            OutputStreamWriter out = new OutputStreamWriter(outStream);//设置内容输出方式
+            String line;
+            SortedList.Node node = pointList.first;
+            do {
+                line = "[" + String.format("%02d", (node.value / 1000) / 60) + ":" + String.format("%02d", ((node.value / 1000) % 60)) + "." + (int) (node.value % 1000) + "]--\n";
+                out.write(line);
+                Log.v("lrc", line);
+                node = node.next;
+            } while (node != null);
+            out.close();
+            txtTemp.setText("lrc保存成功！\n" + txtTemp.getText());
+            showToast("lrc保存成功！");
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
         }

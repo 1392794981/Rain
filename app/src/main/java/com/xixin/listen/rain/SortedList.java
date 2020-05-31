@@ -127,8 +127,8 @@ public class SortedList {
         return getValueByPosition(position);
     }
 
-    public double getLastPoint(){
-        return getValueByPosition(getSize()-1);
+    public double getLastPoint() {
+        return getValueByPosition(getSize() - 1);
     }
 
     public String getCurrentDataString() {
