@@ -1429,15 +1429,42 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void toNextLesson() {
-        strFilePath = FileDialog.getNextLession(strFilePath);
-        loadSound(strFilePath);
-        toRePlay();
+//        strFilePath = FileDialog.getNextLession(strFilePath);
+//        loadSound(strFilePath);
+//        pointList.clearPoint();
+//        toRePlay();
+
+        String fileName = "";
+        String preFileName = "";
+        do {
+            preFileName = fileName;
+            fileName = FileDialog.getNextLession(preFileName.equals("") ? strFilePath : preFileName);
+        } while (!(fileName.equals(preFileName) || fileName.endsWith(".mp3") || fileName.endsWith(".wav")));
+
+        if (fileName.endsWith(".mp3") || fileName.endsWith(".wav")) {
+            strFilePath = fileName;
+            loadSound(strFilePath);
+            pointList.clearPoint();
+            toRePlay();
+        }
     }
 
     private void toForwardLesson() {
-        strFilePath = FileDialog.getForwardLession(strFilePath);
-        loadSound(strFilePath);
-        toRePlay();
+        String fileName = "";
+        String preFileName = "";
+        do {
+            preFileName = fileName;
+            fileName = FileDialog.getForwardLession(preFileName.equals("") ? strFilePath : preFileName);
+
+
+        } while (!(fileName.equals(preFileName) || fileName.endsWith(".mp3") || fileName.endsWith(".wav")));
+
+        if (fileName.endsWith(".mp3") || fileName.endsWith(".wav")) {
+            strFilePath = fileName;
+            loadSound(strFilePath);
+            pointList.clearPoint();
+            toRePlay();
+        }
     }
 
     private void toRecord() {
@@ -1799,8 +1826,8 @@ public class MainActivity extends FragmentActivity {
     ArrayList<LRCShow> pointsList_second = new ArrayList<>();
     boolean blPointShow_second = false;
 
-    protected void loadLRC_Second() {
-        pointsList_second.clear();
+    protected void loadLRC() {
+        pointList.clearPoint();
         try {
             String fileName = strFilePath.substring(0, strFilePath.length() - 4) + ".lrc";
             File file = new File(fileName);
@@ -1816,8 +1843,8 @@ public class MainActivity extends FragmentActivity {
                         String strValue = matcher.group();
                         Double value = Double.valueOf(strValue.substring(1, 3)) * 60 * 1000 + Double.valueOf(str.substring(4, strValue.length() - 1)) * 1000;
                         if (value > 1000) {
-                            String string = str.substring(strValue.length(), str.length());
-                            pointsList_second.add(new LRCShow(value, string));
+                            String string = str.substring(strValue.length());
+                            pointList.insertByOrder(value, string);
                         }
                     }
 
@@ -1826,10 +1853,13 @@ public class MainActivity extends FragmentActivity {
 //                    pointList.insertByOrder(value, string);
                 }
                 br.close();
+                txtTemp.setText("lrc加载成功！\n");
                 showToast("lrc加载成功！");
+            } else {
+                showToast("lrc文件不存在！");
             }
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
+            Log.v("lrc", e.getMessage());
         }
     }
 
@@ -1850,7 +1880,7 @@ public class MainActivity extends FragmentActivity {
             String line;
             SortedList.Node node = pointList.first;
             do {
-                line = "[" + String.format("%02d", (node.value / 1000) / 60) + ":" + String.format("%02d", ((node.value / 1000) % 60)) + "." + (int) (node.value % 1000) + "]--\n";
+                line = "[" + String.format("%02d", (int) (node.value / 1000) / 60) + ":" + String.format("%02d", (int) ((node.value / 1000) % 60)) + "." + (int) (node.value % 1000) + "]--\n";
                 out.write(line);
                 Log.v("lrc", line);
                 node = node.next;
@@ -1859,15 +1889,16 @@ public class MainActivity extends FragmentActivity {
             txtTemp.setText("lrc保存成功！\n" + txtTemp.getText());
             showToast("lrc保存成功！");
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
+            Log.v("lrc", e.getMessage());
         }
     }
 
-    protected void loadLRC() {
+    protected void loadLRC_Second() {
         try {
             String fileName = strFilePath.substring(0, strFilePath.length() - 4) + ".lrc";
             File file = new File(fileName);
             if (file.exists()) {
+                pointsList_second.clear();
                 FileInputStream fis = new FileInputStream(fileName);
                 InputStreamReader isr = new InputStreamReader(fis, encoder(fileName));
                 BufferedReader br = new BufferedReader(isr);
@@ -1880,7 +1911,7 @@ public class MainActivity extends FragmentActivity {
                         Double value = Double.valueOf(strValue.substring(1, 3)) * 60 * 1000 + Double.valueOf(str.substring(4, strValue.length() - 1)) * 1000;
                         if (value > 1000) {
                             String string = str.substring(strValue.length(), str.length());
-                            pointList.insertByOrder(value, string);
+                            pointsList_second.add(new LRCShow(value, string));
                         }
                     }
 
@@ -1973,7 +2004,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     public static void verifyStoragePermissions(Activity activity) {
