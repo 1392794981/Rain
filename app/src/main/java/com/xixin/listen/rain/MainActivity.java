@@ -1228,16 +1228,15 @@ public class MainActivity extends FragmentActivity {
                     toRePlay();
                     break;
 
-                case KeyEvent.KEYCODE_DPAD_DOWN:
-                    toBack(6000);
-                    break;
             }
         }
 
         if (event.getAction() == KeyEvent.ACTION_UP) {
             switch (event.getKeyCode()) {
 
-
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    toBack(6000);
+                    break;
                 case KeyEvent.KEYCODE_DPAD_UP:
                     toPre();
                     break;
