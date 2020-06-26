@@ -135,6 +135,7 @@ public class MainActivity extends FragmentActivity {
         //根据AudioRecord的音频采样率、音频录制声道、音频数据格式获取缓冲区大小
         bufferSizeInShort = AudioRecord.getMinBufferSize(sampleRateInHz, channelConfig, audioFormat);
 
+
         //根据音频获取来源、音频采用率、音频录制声道、音频数据格式和缓冲区大小来创建AudioRecord对象
         audioRecord = new AudioRecord(audioSource, sampleRateInHz, channelConfig, audioFormat, bufferSizeInShort);
 
@@ -756,24 +757,7 @@ public class MainActivity extends FragmentActivity {
         lrcShow_button = viewPlayer.findViewById(R.id.show_button);
 
 
-        String dir = "/storage/emulated/0/";
-        if (strFilePath != null && strFilePath.lastIndexOf("/") > 0)
-            dir = strFilePath.substring(0, strFilePath.lastIndexOf("/"));
-
-        File dialogDir = new File(dir);
-        if (!dialogDir.exists())
-            dialogDir = new File("/storage/emulated/0/");
-        Log.v("dir", dir);
-        //txtTemp.setText(strFilePath+"\n"+ dir);
-
-        fileDialog = new FileDialog(this, dialogDir, "");
-        fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
-            @Override
-            public void fileSelected(File file) {
-                strFilePath = file.getAbsolutePath();
-                loadSound(strFilePath);
-            }
-        });
+        initFileDialog();
 
         lrcShow_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1177,6 +1161,27 @@ public class MainActivity extends FragmentActivity {
         ////////////////////////////////////
         initCustomSetting();
 
+    }
+
+    private void initFileDialog() {
+        String dir = "/storage/emulated/0/";
+        if (strFilePath != null && strFilePath.lastIndexOf("/") > 0)
+            dir = strFilePath.substring(0, strFilePath.lastIndexOf("/")+1);
+
+        File dialogDir = new File(dir);
+        if (!dialogDir.exists())
+            dialogDir = new File("/storage/emulated/0/");
+        Log.v("dir", dir);
+        //txtTemp.setText(strFilePath+"\n"+ dir);
+
+        fileDialog = new FileDialog(this, dialogDir, "");
+        fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
+            @Override
+            public void fileSelected(File file) {
+                strFilePath = file.getAbsolutePath();
+                loadSound(strFilePath);
+            }
+        });
     }
 
     private void toRecordPlayStop() {
@@ -1666,6 +1671,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void toOpenFile() {
+        initFileDialog();
         fileDialog.showDialog();
 //        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 //        intent.setType("audio/MP3");//设置类型，我这里是任意类型，任意后缀的可以这样写。
